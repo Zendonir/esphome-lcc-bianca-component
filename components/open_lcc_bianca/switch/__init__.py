@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import switch
-from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, ICON_RADIOACTIVE, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
+from esphome.const import CONF_ID, ICON_RADIOACTIVE
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -9,6 +9,7 @@ CONF_OPEN_LCC_BIANCA_ID = "open_lcc_bianca_id"
 
 CONF_ECO_MODE = "eco_mode"
 CONF_SLEEP_MODE = "sleep_mode"
+CONF_STANDBY_MODE = "standby_mode"
 CONF_LOW_FLOW_MODE = "low_flow_mode"
 
 OpenLCCBiancaSwitch = open_lcc_bianca_ns.class_(
@@ -34,6 +35,10 @@ CONFIG_SCHEMA = cv.Schema(
             class_=LambdaSwitch,
             icon=ICON_RADIOACTIVE,
         ),
+        cv.Optional(CONF_STANDBY_MODE): switch.switch_schema(
+            class_=LambdaSwitch,
+            icon=ICON_RADIOACTIVE,
+        ),
         cv.Optional(CONF_LOW_FLOW_MODE): switch.switch_schema(
             class_=LambdaSwitch,
             icon=ICON_RADIOACTIVE,
@@ -53,6 +58,10 @@ async def to_code(config):
     if sleep_mode_config := config.get(CONF_SLEEP_MODE):
         sw = await switch.new_switch(sleep_mode_config)
         cg.add(var.set_sleep_mode(sw))
+
+    if standby_mode_config := config.get(CONF_STANDBY_MODE):
+        sw = await switch.new_switch(standby_mode_config)
+        cg.add(var.set_standby_mode(sw))
 
     if low_flow_mode_config := config.get(CONF_LOW_FLOW_MODE):
         sw = await switch.new_switch(low_flow_mode_config)

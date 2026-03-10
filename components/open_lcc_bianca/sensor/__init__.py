@@ -13,6 +13,7 @@ CONF_EXTERNAL_TEMPERATURE_1 = "external_temperature_1"
 CONF_EXTERNAL_TEMPERATURE_2 = "external_temperature_2"
 CONF_EXTERNAL_TEMPERATURE_3 = "external_temperature_3"
 CONF_AUTO_SLEEP_IN = "auto_sleep_in"
+CONF_AUTO_STANDBY_IN = "auto_standby_in"
 CONF_RP2040_UPTIME = "rp2040_uptime"
 CONF_BREW_TIME = "brew_time"
 CONF_CURRENT_ROUTINE = "current_routine"
@@ -41,6 +42,12 @@ CONFIG_SCHEMA = cv.Schema(
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_AUTO_SLEEP_IN): sensor.sensor_schema(
+            unit_of_measurement=UNIT_SECOND,
+            icon=ICON_RADIOACTIVE,
+            accuracy_decimals=0,
+            state_class=STATE_CLASS_MEASUREMENT,
+        ),
+        cv.Optional(CONF_AUTO_STANDBY_IN): sensor.sensor_schema(
             unit_of_measurement=UNIT_SECOND,
             icon=ICON_RADIOACTIVE,
             accuracy_decimals=0,
@@ -103,6 +110,9 @@ async def to_code(config):
     if auto_sleep_in_config := config.get(CONF_AUTO_SLEEP_IN):
         sens = await sensor.new_sensor(auto_sleep_in_config)
         cg.add(var.set_auto_sleep_in(sens))
+    if auto_standby_in_config := config.get(CONF_AUTO_STANDBY_IN):
+        sens = await sensor.new_sensor(auto_standby_in_config)
+        cg.add(var.set_auto_standby_in(sens))
     if rp2040_uptime_config := config.get(CONF_RP2040_UPTIME):
         sens = await sensor.new_sensor(rp2040_uptime_config)
         cg.add(var.set_rp2040_uptime(sens))

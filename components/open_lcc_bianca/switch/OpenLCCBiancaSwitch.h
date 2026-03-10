@@ -31,6 +31,10 @@ namespace esphome {
                     sleep_mode_->publish_state(message.sleepMode);
                 }
 
+                if (standby_mode_ != nullptr) {
+                    standby_mode_->publish_state(message.standbyMode);
+                }
+
                 if (low_flow_mode_ != nullptr) {
                     low_flow_mode_->publish_state(message.flowMode != ESP_FLOW_MODE_PUMP_OFF_SOLENOID_OPEN);
                 }
@@ -50,6 +54,15 @@ namespace esphome {
                 });
             }
 
+            void set_standby_mode(LambdaSwitch *standby_mode) {
+                standby_mode_ = standby_mode;
+                standby_mode_->set_write_state_f([this](bool state) {
+                    get_parent()->sendCommand(ESP_SYSTEM_COMMAND_SET_STANDBY_MODE, state);
+                });
+            }
+
+
+
             void set_low_flow_mode(LambdaSwitch *low_flow_mode) {
                 low_flow_mode_ = low_flow_mode;
                 low_flow_mode_->set_write_state_f([this](bool state) {
@@ -63,6 +76,7 @@ namespace esphome {
         protected:
             LambdaSwitch *eco_mode_{nullptr};
             LambdaSwitch *sleep_mode_{nullptr};
+            LambdaSwitch *standby_mode_{nullptr};
             LambdaSwitch *low_flow_mode_{nullptr};
         };
     }

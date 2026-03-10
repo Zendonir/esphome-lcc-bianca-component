@@ -33,17 +33,19 @@ namespace esphome {
                     case ESP_SYSTEM_COALESCED_STATE_UNDETERMINED:
                         return "Undetermined";
                     case ESP_SYSTEM_COALESCED_STATE_HEATUP:
-                        return "Heatup";
+                        return "Aufheizen";
                     case ESP_SYSTEM_COALESCED_STATE_TEMPS_NORMALIZING:
-                        return "Temperatures normalizing";
+                        return "Normalisieren";
                     case ESP_SYSTEM_COALESCED_STATE_WARM:
-                        return "Warm";
+                        return "Betriebsbereit";
                     case ESP_SYSTEM_COALESCED_STATE_SLEEPING:
-                        return "Sleeping";
+                        return "Schlafmodus";
+                    case ESP_SYSTEM_COALESCED_STATE_STANDBY:
+                        return "Standby";
                     case ESP_SYSTEM_COALESCED_STATE_BAILED:
-                        return "Bailed";
+                        return "Fehler";
                     case ESP_SYSTEM_COALESCED_STATE_FIRST_RUN:
-                        return "First run";
+                        return "Erststart";
                 }
 
                 return "Unknown";
