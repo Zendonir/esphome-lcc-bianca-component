@@ -11,6 +11,7 @@ CONF_BREW_BOILER_TEMP_OFFSET = "coffee_boiler_temperature_offset"
 CONF_COFFEE_BOILER_TEMP_SET_POINT = "coffee_boiler_temperature_set_point"
 CONF_SERVICE_BOILER_TEMP_SET_POINT = "service_boiler_temperature_set_point"
 CONF_AUTO_SLEEP_AFTER = "auto_sleep_after"
+CONF_AUTO_STANDBY_AFTER = "auto_standby_after"
 
 OpenLCCBiancaNumber = open_lcc_bianca_ns.class_(
     "OpenLCCBiancaNumber",
@@ -40,6 +41,10 @@ CONFIG_SCHEMA = cv.Schema(
             icon=ICON_RADIOACTIVE,
         ),
         cv.Optional(CONF_AUTO_SLEEP_AFTER): number.number_schema(
+            class_=LambdaNumber,
+            icon=ICON_RADIOACTIVE,
+        ),
+        cv.Optional(CONF_AUTO_STANDBY_AFTER): number.number_schema(
             class_=LambdaNumber,
             icon=ICON_RADIOACTIVE,
         ),
@@ -87,3 +92,11 @@ async def to_code(config):
             step=1
         )
         cg.add(var.set_auto_sleep_after(sens))
+    if status_config := config.get(CONF_AUTO_STANDBY_AFTER):
+        sens = await number.new_number(
+            status_config,
+            min_value=0,
+            max_value=600,
+            step=1
+        )
+        cg.add(var.set_auto_standby_after(sens))
