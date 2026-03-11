@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import text_sensor
-from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, ICON_RADIOACTIVE, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
+from esphome.const import CONF_ID
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -20,7 +20,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_ID): cv.declare_id(OpenLCCBiancaSensor),
         cv.GenerateID(CONF_OPEN_LCC_BIANCA_ID): cv.use_id(OpenLCCBianca),
         cv.Optional(CONF_STATUS): text_sensor.text_sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:information-outline",
         ),
     }
 )

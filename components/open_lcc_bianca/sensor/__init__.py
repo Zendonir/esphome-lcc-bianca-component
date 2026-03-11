@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, ICON_RADIOACTIVE, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
+from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -31,65 +31,65 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_OPEN_LCC_BIANCA_ID): cv.use_id(OpenLCCBianca),
         cv.Optional(CONF_COFFEE_BOILER_TEMPERATURE): sensor.sensor_schema(
             unit_of_measurement=UNIT_CELSIUS,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:coffee-maker",
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_SERVICE_BOILER_TEMPERATURE): sensor.sensor_schema(
             unit_of_measurement=UNIT_CELSIUS,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:kettle-steam",
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_AUTO_SLEEP_IN): sensor.sensor_schema(
             unit_of_measurement=UNIT_SECOND,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:sleep",
             accuracy_decimals=0,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_AUTO_STANDBY_IN): sensor.sensor_schema(
             unit_of_measurement=UNIT_SECOND,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:power-sleep",
             accuracy_decimals=0,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_RP2040_UPTIME): sensor.sensor_schema(
             unit_of_measurement=UNIT_SECOND,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:timer-outline",
             accuracy_decimals=0,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_EXTERNAL_TEMPERATURE_1): sensor.sensor_schema(
             unit_of_measurement=UNIT_CELSIUS,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:thermometer-high",
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_EXTERNAL_TEMPERATURE_2): sensor.sensor_schema(
             unit_of_measurement=UNIT_CELSIUS,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:thermometer-low",
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_EXTERNAL_TEMPERATURE_3): sensor.sensor_schema(
             unit_of_measurement=UNIT_CELSIUS,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:thermometer",
             accuracy_decimals=1,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_BREW_TIME): sensor.sensor_schema(
             unit_of_measurement=UNIT_SECOND,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:timer",
             accuracy_decimals=0,
             state_class=STATE_CLASS_MEASUREMENT,
         ),
         cv.Optional(CONF_CURRENT_ROUTINE): sensor.sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:playlist-star",
             accuracy_decimals=0,
             state_class=STATE_CLASS_NONE,
         ),
         cv.Optional(CONF_CURRENT_ROUTINE_STEP): sensor.sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:stairs",
             accuracy_decimals=0,
             state_class=STATE_CLASS_NONE,
         ),

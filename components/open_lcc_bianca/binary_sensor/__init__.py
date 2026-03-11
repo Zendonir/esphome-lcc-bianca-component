@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import binary_sensor
-from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, ICON_RADIOACTIVE, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
+from esphome.const import CONF_ID
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -24,19 +24,19 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_ID): cv.declare_id(OpenLCCBiancaSensor),
         cv.GenerateID(CONF_OPEN_LCC_BIANCA_ID): cv.use_id(OpenLCCBianca),
         cv.Optional(CONF_BREWING): binary_sensor.binary_sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:coffee",
         ),
         cv.Optional(CONF_FILLING_SERVICE_BOILER): binary_sensor.binary_sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:water-sync",
         ),
         cv.Optional(CONF_WATER_TANK_LOW): binary_sensor.binary_sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:water-alert",
         ),
         cv.Optional(CONF_BREW_BOILER_HEATING): binary_sensor.binary_sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:fire",
         ),
         cv.Optional(CONF_SERVICE_BOILER_HEATING): binary_sensor.binary_sensor_schema(
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:radiator",
         ),
     }
 )

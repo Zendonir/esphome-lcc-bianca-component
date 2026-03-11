@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import number
-from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, ICON_RADIOACTIVE, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
+from esphome.const import CONF_ID
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -30,25 +30,24 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_OPEN_LCC_BIANCA_ID): cv.use_id(OpenLCCBianca),
         cv.Optional(CONF_BREW_BOILER_TEMP_OFFSET): number.number_schema(
             class_=LambdaNumber,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:tune",
         ),
         cv.Optional(CONF_COFFEE_BOILER_TEMP_SET_POINT): number.number_schema(
             class_=LambdaNumber,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:coffee-maker",
         ),
         cv.Optional(CONF_SERVICE_BOILER_TEMP_SET_POINT): number.number_schema(
             class_=LambdaNumber,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:kettle-steam",
         ),
         cv.Optional(CONF_AUTO_SLEEP_AFTER): number.number_schema(
             class_=LambdaNumber,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:sleep",
         ),
         cv.Optional(CONF_AUTO_STANDBY_AFTER): number.number_schema(
             class_=LambdaNumber,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:power-sleep",
         ),
-
     }
 )
 

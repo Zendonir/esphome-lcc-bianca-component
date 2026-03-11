@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import switch
-from esphome.const import CONF_ID, ICON_RADIOACTIVE
+from esphome.const import CONF_ID
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -29,19 +29,19 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_OPEN_LCC_BIANCA_ID): cv.use_id(OpenLCCBianca),
         cv.Optional(CONF_ECO_MODE): switch.switch_schema(
             class_=LambdaSwitch,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:leaf",
         ),
         cv.Optional(CONF_SLEEP_MODE): switch.switch_schema(
             class_=LambdaSwitch,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:sleep",
         ),
         cv.Optional(CONF_STANDBY_MODE): switch.switch_schema(
             class_=LambdaSwitch,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:power-sleep",
         ),
         cv.Optional(CONF_LOW_FLOW_MODE): switch.switch_schema(
             class_=LambdaSwitch,
-            icon=ICON_RADIOACTIVE,
+            icon="mdi:waves-arrow-down",
         ),
     }
 )
