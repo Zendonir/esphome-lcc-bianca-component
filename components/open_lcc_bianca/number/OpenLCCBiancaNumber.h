@@ -43,6 +43,10 @@ namespace esphome {
                     auto_standby_after_->publish_state(message.autoStandbyAfter);
                 }
 
+                if (should_set(auto_standby_after_brew_, message.autoStandbyAfterBrew)) {
+                    auto_standby_after_brew_->publish_state(message.autoStandbyAfterBrew);
+                }
+
             }
 
             void set_boiler_temp_offset(LambdaNumber *boiler_temp_offset) {
@@ -80,6 +84,13 @@ namespace esphome {
                 });
             }
 
+            void set_auto_standby_after_brew(LambdaNumber *auto_standby_after_brew) {
+                auto_standby_after_brew_ = auto_standby_after_brew;
+                auto_standby_after_brew_->set_control_f([this](float state) {
+                    get_parent()->sendCommand(ESP_SYSTEM_COMMAND_SET_AUTO_STANDBY_AFTER_BREW_MINUTES, state);
+                });
+            }
+
 
             bool should_set(LambdaNumber *number, float value, float sigma = 0.1)
             {
@@ -91,6 +102,7 @@ namespace esphome {
             LambdaNumber *service_boiler_set_point_{nullptr};
             LambdaNumber *auto_sleep_after_{nullptr};
             LambdaNumber *auto_standby_after_{nullptr};
+            LambdaNumber *auto_standby_after_brew_{nullptr};
 
         };
     }
