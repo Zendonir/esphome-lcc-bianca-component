@@ -3,10 +3,16 @@
 //
 #include "esp_system.h"
 #include "OpenLCCBianca.h"
+#include <algorithm>
+#include <cstddef>
 #include "esphome/components/logger/logger.h"
 
 namespace esphome {
 namespace open_lcc_bianca {
+
+// Status message of the oldest supported RP2040 firmware (up to currentRoutineStep)
+static constexpr size_t STATUS_MESSAGE_MIN_LENGTH = offsetof(ESPSystemStatusMessage, autoStandbyAfterBrew);
+static constexpr size_t STATUS_MESSAGE_MAX_LENGTH = 512;
 
 void OpenLCCBianca::update() {
 
@@ -113,9 +119,18 @@ void OpenLCCBianca::handlePingMessage(ESPMessageHeader *header) {
 
 void OpenLCCBianca::handleSystemStatusMessage(ESPMessageHeader *header) {
     ESP_LOGV("LCC", "Handling system status");
-    if (header->length == sizeof(ESPSystemStatusMessage)) {
+    // Fields are only ever appended to the status message. Accept shorter messages from older
+    // RP2040 firmware (missing fields stay zero) and longer ones from newer firmware (extra bytes skipped),
+    // so ESP32 and RP2040 do not have to be updated at the same time.
+    if (header->length >= STATUS_MESSAGE_MIN_LENGTH && header->length <= STATUS_MESSAGE_MAX_LENGTH) {
         ESPSystemStatusMessage message{};
-        bool success = this->read_array(reinterpret_cast<uint8_t *>(&message), sizeof(message));
+        size_t own_length = std::min(static_cast<size_t>(header->length), sizeof(message));
+        bool success = this->read_array(reinterpret_cast<uint8_t *>(&message), own_length);
+
+        uint8_t skip;
+        for (size_t i = own_length; success && i < header->length; i++) {
+            success = this->read_byte(&skip);
+        }
 
         if (success) {
             ackMessage(header);
@@ -128,7 +143,7 @@ void OpenLCCBianca::handleSystemStatusMessage(ESPMessageHeader *header) {
             nackMessage(header);
         }
     } else {
-        ESP_LOGD("LCC", "Wrong length, expected %u, was %u", sizeof(ESPSystemStatusMessage), header->length);
+        ESP_LOGD("LCC", "Unexpected status length %u", header->length);
     }
 }
 

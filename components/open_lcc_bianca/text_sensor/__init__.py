@@ -8,6 +8,7 @@ from .. import open_lcc_bianca_ns, OpenLCCBianca
 CONF_OPEN_LCC_BIANCA_ID = "open_lcc_bianca_id"
 
 CONF_STATUS = "status"
+CONF_RP2040_FIRMWARE_VERSION = "rp2040_firmware_version"
 
 OpenLCCBiancaSensor = open_lcc_bianca_ns.class_(
     "OpenLCCBiancaTextSensor",
@@ -22,6 +23,10 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_STATUS): text_sensor.text_sensor_schema(
             icon="mdi:information-outline",
         ),
+        cv.Optional(CONF_RP2040_FIRMWARE_VERSION): text_sensor.text_sensor_schema(
+            icon="mdi:chip",
+            entity_category="diagnostic",
+        ),
     }
 )
 
@@ -33,3 +38,7 @@ async def to_code(config):
     if status_config := config.get(CONF_STATUS):
         sens = await text_sensor.new_text_sensor(status_config)
         cg.add(var.set_status(sens))
+
+    if version_config := config.get(CONF_RP2040_FIRMWARE_VERSION):
+        sens = await text_sensor.new_text_sensor(version_config)
+        cg.add(var.set_rp2040_firmware_version(sens))

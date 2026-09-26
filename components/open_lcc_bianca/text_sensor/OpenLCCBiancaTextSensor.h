@@ -9,6 +9,8 @@
 #include "esphome/core/component.h"
 #include "esphome/components/text_sensor/text_sensor.h"
 #include "esphome/core/helpers.h"
+#include <cstring>
+#include <string>
 #include "../esp-protocol.h"
 #include "../OpenLCCBianca.h"
 
@@ -25,6 +27,18 @@ namespace esphome {
                 auto stateString = prettifyCoalescedStateString(message.coalescedState);
                 if (status_ != nullptr && (!status_->has_state() || status_->state != stateString)) {
                     status_->publish_state(stateString);
+                }
+
+                if (rp2040_firmware_version_ != nullptr) {
+                    // Firmware older than v1.0.2 does not send a version, the field is then all zero
+                    std::string version(message.firmwareVersion,
+                                        strnlen(message.firmwareVersion, sizeof(message.firmwareVersion)));
+                    if (version.empty()) {
+                        version = "älter als v1.0.2";
+                    }
+                    if (!rp2040_firmware_version_->has_state() || rp2040_firmware_version_->state != version) {
+                        rp2040_firmware_version_->publish_state(version);
+                    }
                 }
             }
 
@@ -52,8 +66,10 @@ namespace esphome {
             }
 
             void set_status(esphome::text_sensor::TextSensor *status) { status_ = status; }
+            void set_rp2040_firmware_version(esphome::text_sensor::TextSensor *sens) { rp2040_firmware_version_ = sens; }
         protected:
             esphome::text_sensor::TextSensor *status_{nullptr};
+            esphome::text_sensor::TextSensor *rp2040_firmware_version_{nullptr};
         };
     }
 }

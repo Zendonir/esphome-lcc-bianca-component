@@ -139,3 +139,7 @@ text_sensor:
   - platform: open_lcc_bianca
     status:
       name: Status
+    rp2040_firmware_version:
+      name: RP2040 Firmware Version
+  - platform: version
+    name: ESP Firmware Version
