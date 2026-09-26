@@ -1,0 +1,141 @@
+# Compile test for CI, not meant to be flashed
+esphome:
+  name: open-lcc-ci-test
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+
+wifi:
+  ssid: "ci"
+  password: "ci-password"
+
+logger:
+
+api:
+
+uart:
+  id: rp2040_uart
+  baud_rate: 115200
+  tx_pin: GPIO17
+  rx_pin: GPIO18
+
+output:
+  - platform: gpio
+    pin: GPIO4
+    id: rp2040_en
+  - platform: gpio
+    pin: GPIO6
+    id: rp2040_serial_boot
+
+switch:
+  - platform: output
+    id: rp2040_serial_boot_sw
+    output: rp2040_serial_boot
+  - platform: output
+    id: rp2040_en_sw
+    output: rp2040_en
+  - platform: open_lcc_bianca
+    eco_mode:
+      name: Eco Mode
+    sleep_mode:
+      name: Sleep Mode
+    standby_mode:
+      name: Standby Mode
+    low_flow_mode:
+      name: Low Flow
+
+open_lcc_bianca:
+  id: lcc_1
+
+http_request:
+  verify_ssl: true
+  timeout: 20s
+  buffer_size_tx: 2048
+  buffer_size_rx: 2048
+
+open_lcc_rp2040_updater:
+  id: rp2040_updater
+  status:
+    name: RP2040 Update Status
+
+script:
+  - id: rp2040_update
+    mode: single
+    then:
+      - open_lcc_rp2040_updater.download: rp2040_updater
+      - if:
+          condition:
+            open_lcc_rp2040_updater.is_downloaded: rp2040_updater
+          then:
+            - open_lcc.bianca.hard_bail: lcc_1
+            - open_lcc.bianca.disable: lcc_1
+            - switch.turn_off: rp2040_en_sw
+            - switch.turn_off: rp2040_serial_boot_sw
+            - delay: 1s
+            - switch.turn_on: rp2040_en_sw
+            - delay: 2s
+            - switch.turn_on: rp2040_serial_boot_sw
+            - open_lcc_rp2040_updater.flash: rp2040_updater
+            - open_lcc.bianca.enable: lcc_1
+
+button:
+  - platform: template
+    name: "RP2040 Firmware aktualisieren"
+    on_press:
+      - script.execute: rp2040_update
+
+binary_sensor:
+  - platform: open_lcc_bianca
+    brewing:
+      name: Brewing
+    filling_service_boiler:
+      name: Filling
+    water_tank_low:
+      name: Water Tank Low
+    brew_boiler_heating:
+      name: Brew Boiler Heating
+    service_boiler_heating:
+      name: Service Boiler Heating
+
+number:
+  - platform: open_lcc_bianca
+    coffee_boiler_temperature_offset:
+      name: Offset
+    auto_sleep_after:
+      name: Auto Sleep
+    auto_standby_after:
+      name: Auto Standby
+    auto_standby_after_brew:
+      name: Auto Standby After Brew
+    coffee_boiler_temperature_set_point:
+      name: Coffee Set Point
+    service_boiler_temperature_set_point:
+      name: Service Set Point
+
+sensor:
+  - platform: open_lcc_bianca
+    coffee_boiler_temperature:
+      name: Coffee Boiler
+    service_boiler_temperature:
+      name: Service Boiler
+    auto_sleep_in:
+      name: Auto Sleep In
+    auto_standby_in:
+      name: Auto Standby In
+
+text_sensor:
+  - platform: open_lcc_bianca
+    status:
+      name: Status
