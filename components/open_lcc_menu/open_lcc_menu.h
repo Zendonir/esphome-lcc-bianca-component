@@ -54,6 +54,13 @@ class OpenLCCMenu : public Component {
     this->small_font_ = small_font;
     this->value_font_ = value_font;
   }
+  // Visible area: the display is larger than the opening in the machine's front panel
+  void set_margins(int left, int top, int right, int bottom) {
+    this->margin_left_ = left;
+    this->margin_top_ = top;
+    this->margin_right_ = right;
+    this->margin_bottom_ = bottom;
+  }
   void set_timeout(uint32_t ms) { this->timeout_ms_ = ms; }
   void set_long_press_time(uint32_t ms) { this->long_press_ms_ = ms; }
   void set_home_long_minus_time(uint32_t ms) { this->home_long_minus_ms_ = ms; }
@@ -95,7 +102,7 @@ class OpenLCCMenu : public Component {
   Item *current_item_();
   std::string value_text_(const Item &item, float value) const;
   std::string item_value_text_(const Item &item) const;
-  void draw_list_(display::Display &it, const std::vector<std::string> &labels,
+  void draw_list_(display::Display &it, int x, int y, int width, int height, const std::vector<std::string> &labels,
                   const std::vector<std::string> &values, int selected);
 
   binary_sensor::BinarySensor *minus_{nullptr};
@@ -103,6 +110,11 @@ class OpenLCCMenu : public Component {
   display::BaseFont *font_{nullptr};
   display::BaseFont *small_font_{nullptr};
   display::BaseFont *value_font_{nullptr};
+
+  int margin_left_{36};
+  int margin_top_{20};
+  int margin_right_{30};
+  int margin_bottom_{16};
 
   uint32_t timeout_ms_{15000};
   uint32_t long_press_ms_{1000};

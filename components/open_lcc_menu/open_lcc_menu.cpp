@@ -19,10 +19,10 @@ static const Color COLOR_SELECTED_BG(255, 255, 255);
 static const Color COLOR_SELECTED_TEXT(0, 0, 0);
 static const Color COLOR_WARNING(255, 200, 0);
 
-static constexpr int TITLE_HEIGHT = 24;
-static constexpr int FOOTER_HEIGHT = 20;
-static constexpr int ROW_HEIGHT = 32;
-static constexpr int MARGIN = 8;
+static constexpr int TITLE_HEIGHT = 20;
+static constexpr int FOOTER_HEIGHT = 16;
+static constexpr int MIN_ROW_HEIGHT = 28;
+static constexpr int PADDING = 4;
 
 void OpenLCCMenu::setup() {
   if (this->minus_ != nullptr)
@@ -260,13 +260,13 @@ std::string OpenLCCMenu::item_value_text_(const Item &item) const {
   return "";
 }
 
-void OpenLCCMenu::draw_list_(display::Display &it, const std::vector<std::string> &labels,
-                             const std::vector<std::string> &values, int selected) {
-  int width = it.get_width();
-  int height = it.get_height();
-  int visible = (height - TITLE_HEIGHT - FOOTER_HEIGHT) / ROW_HEIGHT;
+void OpenLCCMenu::draw_list_(display::Display &it, int x, int y, int width, int height,
+                             const std::vector<std::string> &labels, const std::vector<std::string> &values,
+                             int selected) {
+  int visible = height / MIN_ROW_HEIGHT;
   if (visible < 1)
     visible = 1;
+  int row_height = height / visible;
 
   int first = 0;
   if (selected >= visible)
@@ -274,32 +274,39 @@ void OpenLCCMenu::draw_list_(display::Display &it, const std::vector<std::string
 
   for (int row = 0; row < visible && first + row < (int) labels.size(); row++) {
     int index = first + row;
-    int y = TITLE_HEIGHT + row * ROW_HEIGHT;
+    int row_y = y + row * row_height;
     bool is_selected = index == selected;
     Color fg = is_selected ? COLOR_SELECTED_TEXT : COLOR_TEXT;
     if (is_selected)
-      it.filled_rectangle(0, y, width, ROW_HEIGHT, COLOR_SELECTED_BG);
-    int center_y = y + ROW_HEIGHT / 2;
-    it.print(MARGIN, center_y, this->font_, fg, display::TextAlign::CENTER_LEFT, labels[index].c_str());
+      it.filled_rectangle(x, row_y, width, row_height, COLOR_SELECTED_BG);
+    int center_y = row_y + row_height / 2;
+    it.print(x + PADDING, center_y, this->font_, fg, display::TextAlign::CENTER_LEFT, labels[index].c_str());
     if (index < (int) values.size() && !values[index].empty())
-      it.print(width - MARGIN, center_y, this->font_, is_selected ? fg : COLOR_DIM,
+      it.print(x + width - PADDING, center_y, this->font_, is_selected ? fg : COLOR_DIM,
                display::TextAlign::CENTER_RIGHT, values[index].c_str());
   }
 
-  // Scroll indicators
+  // Scroll indicators at the right edge
+  int arrow_x = x + width - 6;
   if (first > 0)
-    it.filled_triangle(width / 2 - 5, TITLE_HEIGHT + 4, width / 2 + 5, TITLE_HEIGHT + 4, width / 2,
-                       TITLE_HEIGHT, COLOR_DIM);
-  if (first + visible < (int) labels.size()) {
-    int y = height - FOOTER_HEIGHT - 1;
-    it.filled_triangle(width / 2 - 5, y - 4, width / 2 + 5, y - 4, width / 2, y, COLOR_DIM);
-  }
+    it.filled_triangle(arrow_x - 4, y + 5, arrow_x + 4, y + 5, arrow_x, y + 1, COLOR_DIM);
+  if (first + visible < (int) labels.size())
+    it.filled_triangle(arrow_x - 4, y + height - 5, arrow_x + 4, y + height - 5, arrow_x, y + height - 1, COLOR_DIM);
 }
 
 void OpenLCCMenu::draw(display::Display &it) {
-  int width = it.get_width();
-  int height = it.get_height();
   it.fill(COLOR_BACKGROUND);
+  if (this->level_ == LEVEL_HOME)
+    return;
+
+  // Only draw inside the part of the display that is visible through the front panel
+  int x = this->margin_left_;
+  int y = this->margin_top_;
+  int width = it.get_width() - this->margin_left_ - this->margin_right_;
+  int height = it.get_height() - this->margin_top_ - this->margin_bottom_;
+  int body_y = y + TITLE_HEIGHT;
+  int body_height = height - TITLE_HEIGHT - FOOTER_HEIGHT;
+  int body_center_y = body_y + body_height / 2;
 
   std::string title = "MENÜ";
   std::string position;
@@ -313,9 +320,9 @@ void OpenLCCMenu::draw(display::Display &it) {
       std::vector<std::string> labels;
       for (auto &page : this->pages_)
         labels.push_back(page.title);
-      position = str_sprintf("%d / %d", this->page_index_ + 1, (int) this->pages_.size());
+      position = str_sprintf("%d/%d", this->page_index_ + 1, (int) this->pages_.size());
       footer = "-/+ wählen  L+ öffnen  L- zurück";
-      this->draw_list_(it, labels, {}, this->page_index_);
+      this->draw_list_(it, x, body_y, width, body_height, labels, {}, this->page_index_);
       break;
     }
 
@@ -327,7 +334,7 @@ void OpenLCCMenu::draw(display::Display &it) {
         labels.push_back(item.label);
         values.push_back(this->item_value_text_(item));
       }
-      position = str_sprintf("%d / %d", this->item_index_ + 1, (int) page.items.size());
+      position = str_sprintf("%d/%d", this->item_index_ + 1, (int) page.items.size());
       Item *item = this->current_item_();
       if (item != nullptr && item->type == ITEM_TEXT) {
         footer = "-/+ wählen  L- zurück";
@@ -336,7 +343,7 @@ void OpenLCCMenu::draw(display::Display &it) {
       } else {
         footer = "-/+ wählen  L+ öffnen  L- zurück";
       }
-      this->draw_list_(it, labels, values, this->item_index_);
+      this->draw_list_(it, x, body_y, width, body_height, labels, values, this->item_index_);
       break;
     }
 
@@ -344,9 +351,9 @@ void OpenLCCMenu::draw(display::Display &it) {
       Item *item = this->current_item_();
       if (item == nullptr)
         return;
-      title = this->pages_[this->page_index_].title + " > " + item->label;
-      it.print(width / 2, (height + TITLE_HEIGHT - FOOTER_HEIGHT) / 2, this->value_font_, COLOR_TEXT,
-               display::TextAlign::CENTER, this->value_text_(*item, this->edit_value_).c_str());
+      title = item->label;
+      it.print(x + width / 2, body_center_y, this->value_font_, COLOR_TEXT, display::TextAlign::CENTER,
+               this->value_text_(*item, this->edit_value_).c_str());
       footer = "-/+ ändern  L+ OK  L- abbrechen";
       break;
     }
@@ -356,22 +363,23 @@ void OpenLCCMenu::draw(display::Display &it) {
       if (item == nullptr)
         return;
       title = "Bestätigen";
-      it.print(width / 2, (height + TITLE_HEIGHT - FOOTER_HEIGHT) / 2, this->font_, COLOR_WARNING,
-               display::TextAlign::CENTER, (item->label + "?").c_str());
+      it.print(x + width / 2, body_center_y, this->font_, COLOR_WARNING, display::TextAlign::CENTER,
+               (item->label + "?").c_str());
       footer = "L+ ja   L- nein";
       break;
     }
   }
 
   // Title bar
-  it.filled_rectangle(0, 0, width, TITLE_HEIGHT, COLOR_BAR);
-  it.print(MARGIN, TITLE_HEIGHT / 2, this->small_font_, COLOR_TEXT, display::TextAlign::CENTER_LEFT, title.c_str());
+  it.filled_rectangle(x, y, width, TITLE_HEIGHT, COLOR_BAR);
+  it.print(x + PADDING, y + TITLE_HEIGHT / 2, this->small_font_, COLOR_TEXT, display::TextAlign::CENTER_LEFT,
+           title.c_str());
   if (!position.empty())
-    it.print(width - MARGIN, TITLE_HEIGHT / 2, this->small_font_, COLOR_DIM, display::TextAlign::CENTER_RIGHT,
-             position.c_str());
+    it.print(x + width - PADDING, y + TITLE_HEIGHT / 2, this->small_font_, COLOR_DIM,
+             display::TextAlign::CENTER_RIGHT, position.c_str());
 
   // Footer
-  it.print(width / 2, height - FOOTER_HEIGHT / 2, this->small_font_, COLOR_DIM, display::TextAlign::CENTER,
+  it.print(x + width / 2, y + height - FOOTER_HEIGHT / 2, this->small_font_, COLOR_DIM, display::TextAlign::CENTER,
            footer.c_str());
 }
 

@@ -12,6 +12,11 @@ CONF_PLUS_BUTTON = "plus_button"
 CONF_FONT = "font"
 CONF_SMALL_FONT = "small_font"
 CONF_VALUE_FONT = "value_font"
+CONF_VISIBLE_AREA = "visible_area"
+CONF_LEFT = "left"
+CONF_TOP = "top"
+CONF_RIGHT = "right"
+CONF_BOTTOM = "bottom"
 CONF_LONG_PRESS_TIME = "long_press_time"
 CONF_HOME_LONG_MINUS_TIME = "home_long_minus_time"
 CONF_ON_HOME_MINUS = "on_home_minus"
@@ -78,6 +83,15 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Required(CONF_FONT): cv.use_id(font.Font),
         cv.Required(CONF_SMALL_FONT): cv.use_id(font.Font),
         cv.Required(CONF_VALUE_FONT): cv.use_id(font.Font),
+        # Pixels hidden behind the front panel on each side (display coordinates after rotation)
+        cv.Optional(CONF_VISIBLE_AREA, default={}): cv.Schema(
+            {
+                cv.Optional(CONF_LEFT, default=36): cv.int_range(min=0, max=200),
+                cv.Optional(CONF_TOP, default=20): cv.int_range(min=0, max=200),
+                cv.Optional(CONF_RIGHT, default=30): cv.int_range(min=0, max=200),
+                cv.Optional(CONF_BOTTOM, default=16): cv.int_range(min=0, max=200),
+            }
+        ),
         cv.Optional(CONF_TIMEOUT, default="15s"): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_LONG_PRESS_TIME, default="1s"): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_HOME_LONG_MINUS_TIME, default="3s"): cv.positive_time_period_milliseconds,
@@ -102,6 +116,8 @@ async def to_code(config):
     value_font = await cg.get_variable(config[CONF_VALUE_FONT])
     cg.add(var.set_fonts(font_, small_font, value_font))
 
+    area = config[CONF_VISIBLE_AREA]
+    cg.add(var.set_margins(area[CONF_LEFT], area[CONF_TOP], area[CONF_RIGHT], area[CONF_BOTTOM]))
     cg.add(var.set_timeout(config[CONF_TIMEOUT]))
     cg.add(var.set_long_press_time(config[CONF_LONG_PRESS_TIME]))
     cg.add(var.set_home_long_minus_time(config[CONF_HOME_LONG_MINUS_TIME]))
