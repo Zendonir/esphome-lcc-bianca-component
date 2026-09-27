@@ -72,11 +72,11 @@ namespace esphome {
                 // SystemControllerBailReason in the RP2040 firmware
                 switch (reason) {
                     case 0: return "Kein Fehler";
-                    case 1: return "Control Board antwortet nicht";
-                    case 2: return "Ungültiges Paket vom Control Board";
-                    case 3: return "Ungültiges Paket an das Control Board";
-                    case 4: return "Heizungssteuerung ohne Daten";
-                    case 5: return "Erzwungen (z. B. OTA-Update)";
+                    case 1: return "Control Board stumm";
+                    case 2: return "Fehlerhaftes CB-Paket";
+                    case 3: return "Fehlerhaftes LCC-Paket";
+                    case 4: return "Heizsteuerung leer";
+                    case 5: return "Erzwungen (Update)";
                 }
                 return "Unbekannt (" + std::to_string(reason) + ")";
             }
@@ -86,17 +86,17 @@ namespace esphome {
                     case ESP_SYSTEM_INTERNAL_STATE_NOT_STARTED_YET:
                         return "Nicht gestartet";
                     case ESP_SYSTEM_INTERNAL_STATE_SOFT_BAIL:
-                        return "Sicherheitsabschaltung (wird automatisch aufgehoben)";
+                        return "Abgeschaltet (auto)";
                     case ESP_SYSTEM_INTERNAL_STATE_HARD_BAIL:
-                        return "Sicherheitsabschaltung (Neustart nötig)";
+                        return "Abgeschaltet (Neustart)";
                     case ESP_SYSTEM_INTERNAL_STATE_RUNNING:
                         break;
                 }
                 switch (run) {
-                    case ESP_SYSTEM_RUN_STATE_UNDETEMINED: return "Läuft: unbestimmt";
+                    case ESP_SYSTEM_RUN_STATE_UNDETEMINED: return "Läuft";
                     case ESP_SYSTEM_RUN_STATE_NORMAL: return "Läuft: normal";
-                    case ESP_SYSTEM_RUN_STATE_HEATUP_STAGE_1: return "Läuft: Aufheizen Stufe 1";
-                    case ESP_SYSTEM_RUN_STATE_HEATUP_STAGE_2: return "Läuft: Aufheizen Stufe 2";
+                    case ESP_SYSTEM_RUN_STATE_HEATUP_STAGE_1: return "Läuft: Aufheizen 1";
+                    case ESP_SYSTEM_RUN_STATE_HEATUP_STAGE_2: return "Läuft: Aufheizen 2";
                     case ESP_SYSTEM_RUN_STATE_FIRST_RUN: return "Läuft: Erststart";
                 }
                 return "Läuft";

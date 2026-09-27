@@ -111,6 +111,7 @@ binary_sensor:
     service_boiler_heating:
       name: Service Boiler Heating
     pump:
+      id: pump_sens
       name: Pump
     water_line_solenoid:
       name: Water Line Solenoid
@@ -149,6 +150,7 @@ number:
     auto_sleep_after:
       name: Auto Sleep
     auto_standby_after:
+      id: auto_standby
       name: Auto Standby
     auto_standby_after_brew:
       name: Auto Standby After Brew
@@ -169,6 +171,7 @@ sensor:
     auto_standby_in:
       name: Auto Standby In
     brew_boiler_power:
+      id: brew_power_sens
       name: Brew Boiler Power
     service_boiler_power:
       name: Service Boiler Power
@@ -184,9 +187,14 @@ text_sensor:
     bail_reason:
       name: Bail Reason
     controller_state:
+      id: controller_state_sens
       name: Controller State
   - platform: version
     name: ESP Firmware Version
+  - platform: wifi_info
+    ip_address:
+      id: ip_address_sens
+      name: IP
 
 spi:
   clk_pin: GPIO12
@@ -239,10 +247,26 @@ open_lcc_menu:
       items:
         - label: Eco-Modus
           switch: eco_sw
+    - title: Timer
+      items:
+        - label: Auto-Standby
+          number: auto_standby
+          step: 5
+          format: "%.0f min"
     - title: Info
       items:
         - label: RP2040
           text: 'return std::string("v1.0.3");'
+        - label: ESPHome
+          text: 'return std::string(ESPHOME_VERSION);'
+        - label: IP
+          text: 'return id(ip_address_sens).state;'
+        - label: Status
+          text: 'return id(controller_state_sens).state;'
+        - label: Pumpe
+          text: 'return id(pump_sens).state ? "an" : "aus";'
+        - label: Heizung KB
+          text: 'return str_sprintf("%.0f %%", id(brew_power_sens).state);'
     - title: System
       items:
         - label: Firmware aktualisieren
