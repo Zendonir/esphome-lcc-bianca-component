@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import sensor
-from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE
+from esphome.const import CONF_ID, UNIT_CELSIUS, UNIT_SECOND, UNIT_PERCENT, STATE_CLASS_MEASUREMENT, STATE_CLASS_NONE, ENTITY_CATEGORY_DIAGNOSTIC
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -15,6 +15,9 @@ CONF_EXTERNAL_TEMPERATURE_3 = "external_temperature_3"
 CONF_AUTO_SLEEP_IN = "auto_sleep_in"
 CONF_AUTO_STANDBY_IN = "auto_standby_in"
 CONF_RP2040_UPTIME = "rp2040_uptime"
+CONF_BREW_BOILER_POWER = "brew_boiler_power"
+CONF_SERVICE_BOILER_POWER = "service_boiler_power"
+CONF_BAIL_COUNT = "bail_count"
 CONF_BREW_TIME = "brew_time"
 CONF_CURRENT_ROUTINE = "current_routine"
 CONF_CURRENT_ROUTINE_STEP = "current_routine_step"
@@ -52,6 +55,26 @@ CONFIG_SCHEMA = cv.Schema(
             icon="mdi:power-sleep",
             accuracy_decimals=0,
             state_class=STATE_CLASS_MEASUREMENT,
+        ),
+        cv.Optional(CONF_BREW_BOILER_POWER): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon="mdi:fire",
+            accuracy_decimals=0,
+            state_class=STATE_CLASS_MEASUREMENT,
+            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        ),
+        cv.Optional(CONF_SERVICE_BOILER_POWER): sensor.sensor_schema(
+            unit_of_measurement=UNIT_PERCENT,
+            icon="mdi:radiator",
+            accuracy_decimals=0,
+            state_class=STATE_CLASS_MEASUREMENT,
+            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        ),
+        cv.Optional(CONF_BAIL_COUNT): sensor.sensor_schema(
+            icon="mdi:alert-octagon",
+            accuracy_decimals=0,
+            state_class=STATE_CLASS_MEASUREMENT,
+            entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
         ),
         cv.Optional(CONF_RP2040_UPTIME): sensor.sensor_schema(
             unit_of_measurement=UNIT_SECOND,
@@ -134,3 +157,7 @@ async def to_code(config):
     if conf := config.get(CONF_CURRENT_ROUTINE_STEP):
         sens = await sensor.new_sensor(conf)
         cg.add(var.set_current_routine_step(sens))
+    for key in (CONF_BREW_BOILER_POWER, CONF_SERVICE_BOILER_POWER, CONF_BAIL_COUNT):
+        if diag_conf := config.get(key):
+            sens = await sensor.new_sensor(diag_conf)
+            cg.add(getattr(var, f"set_{key}")(sens))

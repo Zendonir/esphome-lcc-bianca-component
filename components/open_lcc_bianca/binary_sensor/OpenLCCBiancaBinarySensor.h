@@ -37,6 +37,25 @@ namespace esphome {
                 if (service_boiler_heating_ != nullptr) {
                     service_boiler_heating_->publish_state(message.serviceBoilerOn);
                 }
+                // Diagnostics (binary sensors only publish changes)
+                if (pump_ != nullptr) {
+                    pump_->publish_state(message.pumpOn);
+                }
+                if (water_line_solenoid_ != nullptr) {
+                    water_line_solenoid_->publish_state(message.waterLineSolenoidOpen);
+                }
+                if (service_boiler_solenoid_ != nullptr) {
+                    service_boiler_solenoid_->publish_state(message.serviceBoilerSolenoidOpen);
+                }
+                if (service_boiler_level_low_ != nullptr) {
+                    service_boiler_level_low_->publish_state(message.serviceBoilerLevelLow);
+                }
+                if (brew_lever_ != nullptr) {
+                    brew_lever_->publish_state(message.brewSwitch);
+                }
+                if (pump_locked_ != nullptr) {
+                    pump_locked_->publish_state(message.pumpLocked);
+                }
             }
 
             void set_brewing(esphome::binary_sensor::BinarySensor *brewing) { brewing_ = brewing; }
@@ -44,12 +63,24 @@ namespace esphome {
             void set_water_tank_low(esphome::binary_sensor::BinarySensor *water_tank_low) { water_tank_low_ = water_tank_low; }
             void set_brew_boiler_heating(esphome::binary_sensor::BinarySensor *sens) { brew_boiler_heating_ = sens; }
             void set_service_boiler_heating(esphome::binary_sensor::BinarySensor *sens) { service_boiler_heating_ = sens; }
+            void set_pump(esphome::binary_sensor::BinarySensor *sens) { pump_ = sens; }
+            void set_water_line_solenoid(esphome::binary_sensor::BinarySensor *sens) { water_line_solenoid_ = sens; }
+            void set_service_boiler_solenoid(esphome::binary_sensor::BinarySensor *sens) { service_boiler_solenoid_ = sens; }
+            void set_service_boiler_level_low(esphome::binary_sensor::BinarySensor *sens) { service_boiler_level_low_ = sens; }
+            void set_brew_lever(esphome::binary_sensor::BinarySensor *sens) { brew_lever_ = sens; }
+            void set_pump_locked(esphome::binary_sensor::BinarySensor *sens) { pump_locked_ = sens; }
         protected:
             esphome::binary_sensor::BinarySensor *brewing_{nullptr};
             esphome::binary_sensor::BinarySensor *filling_service_boiler_{nullptr};
             esphome::binary_sensor::BinarySensor *water_tank_low_{nullptr};
             esphome::binary_sensor::BinarySensor *brew_boiler_heating_{nullptr};
             esphome::binary_sensor::BinarySensor *service_boiler_heating_{nullptr};
+            esphome::binary_sensor::BinarySensor *pump_{nullptr};
+            esphome::binary_sensor::BinarySensor *water_line_solenoid_{nullptr};
+            esphome::binary_sensor::BinarySensor *service_boiler_solenoid_{nullptr};
+            esphome::binary_sensor::BinarySensor *service_boiler_level_low_{nullptr};
+            esphome::binary_sensor::BinarySensor *brew_lever_{nullptr};
+            esphome::binary_sensor::BinarySensor *pump_locked_{nullptr};
         };
     }
 }

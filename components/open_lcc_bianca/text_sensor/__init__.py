@@ -9,6 +9,8 @@ CONF_OPEN_LCC_BIANCA_ID = "open_lcc_bianca_id"
 
 CONF_STATUS = "status"
 CONF_RP2040_FIRMWARE_VERSION = "rp2040_firmware_version"
+CONF_BAIL_REASON = "bail_reason"
+CONF_CONTROLLER_STATE = "controller_state"
 
 OpenLCCBiancaSensor = open_lcc_bianca_ns.class_(
     "OpenLCCBiancaTextSensor",
@@ -22,6 +24,14 @@ CONFIG_SCHEMA = cv.Schema(
         cv.GenerateID(CONF_OPEN_LCC_BIANCA_ID): cv.use_id(OpenLCCBianca),
         cv.Optional(CONF_STATUS): text_sensor.text_sensor_schema(
             icon="mdi:information-outline",
+        ),
+        cv.Optional(CONF_BAIL_REASON): text_sensor.text_sensor_schema(
+            icon="mdi:alert-octagon",
+            entity_category="diagnostic",
+        ),
+        cv.Optional(CONF_CONTROLLER_STATE): text_sensor.text_sensor_schema(
+            icon="mdi:state-machine",
+            entity_category="diagnostic",
         ),
         cv.Optional(CONF_RP2040_FIRMWARE_VERSION): text_sensor.text_sensor_schema(
             icon="mdi:chip",
@@ -42,3 +52,8 @@ async def to_code(config):
     if version_config := config.get(CONF_RP2040_FIRMWARE_VERSION):
         sens = await text_sensor.new_text_sensor(version_config)
         cg.add(var.set_rp2040_firmware_version(sens))
+
+    for key in (CONF_BAIL_REASON, CONF_CONTROLLER_STATE):
+        if diag_conf := config.get(key):
+            sens = await text_sensor.new_text_sensor(diag_conf)
+            cg.add(getattr(var, f"set_{key}")(sens))

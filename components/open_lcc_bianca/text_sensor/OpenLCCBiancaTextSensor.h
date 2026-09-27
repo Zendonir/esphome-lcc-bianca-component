@@ -29,6 +29,9 @@ namespace esphome {
                     status_->publish_state(stateString);
                 }
 
+                publish_if_changed_(bail_reason_, bailReasonString(message.bailReason));
+                publish_if_changed_(controller_state_, controllerStateString(message.internalState, message.runState));
+
                 if (rp2040_firmware_version_ != nullptr) {
                     // Firmware older than v1.0.2 does not send a version, the field is then all zero
                     std::string version(message.firmwareVersion,
@@ -65,11 +68,55 @@ namespace esphome {
                 return "Unknown";
             }
 
+            static std::string bailReasonString(uint8_t reason) {
+                // SystemControllerBailReason in the RP2040 firmware
+                switch (reason) {
+                    case 0: return "Kein Fehler";
+                    case 1: return "Control Board antwortet nicht";
+                    case 2: return "Ungültiges Paket vom Control Board";
+                    case 3: return "Ungültiges Paket an das Control Board";
+                    case 4: return "Heizungssteuerung ohne Daten";
+                    case 5: return "Erzwungen (z. B. OTA-Update)";
+                }
+                return "Unbekannt (" + std::to_string(reason) + ")";
+            }
+
+            static std::string controllerStateString(ESPSystemInternalState internal, ESPSystemRunState run) {
+                switch (internal) {
+                    case ESP_SYSTEM_INTERNAL_STATE_NOT_STARTED_YET:
+                        return "Nicht gestartet";
+                    case ESP_SYSTEM_INTERNAL_STATE_SOFT_BAIL:
+                        return "Sicherheitsabschaltung (wird automatisch aufgehoben)";
+                    case ESP_SYSTEM_INTERNAL_STATE_HARD_BAIL:
+                        return "Sicherheitsabschaltung (Neustart nötig)";
+                    case ESP_SYSTEM_INTERNAL_STATE_RUNNING:
+                        break;
+                }
+                switch (run) {
+                    case ESP_SYSTEM_RUN_STATE_UNDETEMINED: return "Läuft: unbestimmt";
+                    case ESP_SYSTEM_RUN_STATE_NORMAL: return "Läuft: normal";
+                    case ESP_SYSTEM_RUN_STATE_HEATUP_STAGE_1: return "Läuft: Aufheizen Stufe 1";
+                    case ESP_SYSTEM_RUN_STATE_HEATUP_STAGE_2: return "Läuft: Aufheizen Stufe 2";
+                    case ESP_SYSTEM_RUN_STATE_FIRST_RUN: return "Läuft: Erststart";
+                }
+                return "Läuft";
+            }
+
             void set_status(esphome::text_sensor::TextSensor *status) { status_ = status; }
+            void set_bail_reason(esphome::text_sensor::TextSensor *sens) { bail_reason_ = sens; }
+            void set_controller_state(esphome::text_sensor::TextSensor *sens) { controller_state_ = sens; }
             void set_rp2040_firmware_version(esphome::text_sensor::TextSensor *sens) { rp2040_firmware_version_ = sens; }
         protected:
             esphome::text_sensor::TextSensor *status_{nullptr};
             esphome::text_sensor::TextSensor *rp2040_firmware_version_{nullptr};
+            esphome::text_sensor::TextSensor *bail_reason_{nullptr};
+            esphome::text_sensor::TextSensor *controller_state_{nullptr};
+
+            static void publish_if_changed_(esphome::text_sensor::TextSensor *sens, const std::string &value) {
+                if (sens != nullptr && (!sens->has_state() || sens->state != value)) {
+                    sens->publish_state(value);
+                }
+            }
         };
     }
 }

@@ -108,6 +108,18 @@ binary_sensor:
       name: Brew Boiler Heating
     service_boiler_heating:
       name: Service Boiler Heating
+    pump:
+      name: Pump
+    water_line_solenoid:
+      name: Water Line Solenoid
+    service_boiler_solenoid:
+      name: Service Boiler Solenoid
+    service_boiler_level_low:
+      name: Service Boiler Level Low
+    brew_lever:
+      name: Brew Lever
+    pump_locked:
+      name: Pump Locked
 
 number:
   - platform: open_lcc_bianca
@@ -134,6 +146,12 @@ sensor:
       name: Auto Sleep In
     auto_standby_in:
       name: Auto Standby In
+    brew_boiler_power:
+      name: Brew Boiler Power
+    service_boiler_power:
+      name: Service Boiler Power
+    bail_count:
+      name: Bail Count
 
 text_sensor:
   - platform: open_lcc_bianca
@@ -141,5 +159,9 @@ text_sensor:
       name: Status
     rp2040_firmware_version:
       name: RP2040 Firmware Version
+    bail_reason:
+      name: Bail Reason
+    controller_state:
+      name: Controller State
   - platform: version
     name: ESP Firmware Version

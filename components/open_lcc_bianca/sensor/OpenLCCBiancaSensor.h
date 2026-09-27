@@ -34,6 +34,15 @@ namespace esphome {
                 if (should_set(auto_standby_in_, message.plannedAutoStandbyInSeconds)) {
                     auto_standby_in_->publish_state(message.plannedAutoStandbyInSeconds);
                 }
+                if (should_set(brew_boiler_power_, message.brewBoilerPower)) {
+                    brew_boiler_power_->publish_state(message.brewBoilerPower);
+                }
+                if (should_set(service_boiler_power_, message.serviceBoilerPower)) {
+                    service_boiler_power_->publish_state(message.serviceBoilerPower);
+                }
+                if (should_set(bail_count_, message.numBails)) {
+                    bail_count_->publish_state(message.numBails);
+                }
                 if (should_set(rp2040_uptime_, message.rp2040UptimeSeconds)) {
                     rp2040_uptime_->publish_state(message.rp2040UptimeSeconds);
                 }
@@ -83,6 +92,9 @@ namespace esphome {
             void set_auto_sleep_in(esphome::sensor::Sensor *auto_sleep_in) { auto_sleep_in_ = auto_sleep_in; }
             void set_auto_standby_in(esphome::sensor::Sensor *auto_standby_in) { auto_standby_in_ = auto_standby_in; }
             void set_rp2040_uptime(esphome::sensor::Sensor *rp2040_uptime) { rp2040_uptime_ = rp2040_uptime; }
+            void set_brew_boiler_power(esphome::sensor::Sensor *sens) { brew_boiler_power_ = sens; }
+            void set_service_boiler_power(esphome::sensor::Sensor *sens) { service_boiler_power_ = sens; }
+            void set_bail_count(esphome::sensor::Sensor *sens) { bail_count_ = sens; }
             void set_external_temperature_1(esphome::sensor::Sensor *sens) { external_temperature_1_ = sens; }
             void set_external_temperature_2(esphome::sensor::Sensor *sens) { external_temperature_2_ = sens; }
             void set_external_temperature_3(esphome::sensor::Sensor *sens) { external_temperature_3_ = sens; }
@@ -96,6 +108,9 @@ namespace esphome {
             esphome::sensor::Sensor *auto_sleep_in_{nullptr};
             esphome::sensor::Sensor *auto_standby_in_{nullptr};
             esphome::sensor::Sensor *rp2040_uptime_{nullptr};
+            esphome::sensor::Sensor *brew_boiler_power_{nullptr};
+            esphome::sensor::Sensor *service_boiler_power_{nullptr};
+            esphome::sensor::Sensor *bail_count_{nullptr};
             esphome::sensor::Sensor *external_temperature_1_{nullptr};
             esphome::sensor::Sensor *external_temperature_2_{nullptr};
             esphome::sensor::Sensor *external_temperature_3_{nullptr};

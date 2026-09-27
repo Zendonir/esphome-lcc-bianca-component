@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import binary_sensor
-from esphome.const import CONF_ID
+from esphome.const import CONF_ID, ENTITY_CATEGORY_DIAGNOSTIC
 
 from .. import open_lcc_bianca_ns, OpenLCCBianca
 
@@ -12,6 +12,16 @@ CONF_FILLING_SERVICE_BOILER = "filling_service_boiler"
 CONF_WATER_TANK_LOW = "water_tank_low"
 CONF_BREW_BOILER_HEATING = "brew_boiler_heating"
 CONF_SERVICE_BOILER_HEATING = "service_boiler_heating"
+
+# Diagnostics
+DIAGNOSTIC_SENSORS = {
+    "pump": "mdi:pump",
+    "water_line_solenoid": "mdi:valve",
+    "service_boiler_solenoid": "mdi:valve",
+    "service_boiler_level_low": "mdi:waves-arrow-down",
+    "brew_lever": "mdi:lever",
+    "pump_locked": "mdi:lock",
+}
 
 OpenLCCBiancaSensor = open_lcc_bianca_ns.class_(
     "OpenLCCBiancaBinarySensor",
@@ -38,6 +48,13 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SERVICE_BOILER_HEATING): binary_sensor.binary_sensor_schema(
             icon="mdi:radiator",
         ),
+        **{
+            cv.Optional(key): binary_sensor.binary_sensor_schema(
+                icon=icon,
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+            )
+            for key, icon in DIAGNOSTIC_SENSORS.items()
+        },
     }
 )
 
@@ -61,3 +78,8 @@ async def to_code(config):
     if service_boiler_heating_conf := config.get(CONF_SERVICE_BOILER_HEATING):
         sens = await binary_sensor.new_binary_sensor(service_boiler_heating_conf)
         cg.add(var.set_service_boiler_heating(sens))
+
+    for key in DIAGNOSTIC_SENSORS:
+        if diag_conf := config.get(key):
+            sens = await binary_sensor.new_binary_sensor(diag_conf)
+            cg.add(getattr(var, f"set_{key}")(sens))
