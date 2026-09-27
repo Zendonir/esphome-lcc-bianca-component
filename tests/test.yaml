@@ -48,10 +48,12 @@ switch:
     output: rp2040_en
   - platform: open_lcc_bianca
     eco_mode:
+      id: eco_sw
       name: Eco Mode
     sleep_mode:
       name: Sleep Mode
     standby_mode:
+      id: standby_sw
       name: Standby Mode
     low_flow_mode:
       name: Low Flow
@@ -121,6 +123,25 @@ binary_sensor:
     pump_locked:
       name: Pump Locked
 
+  - platform: gpio
+    id: btn_plus
+    pin:
+      number: GPIO38
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    internal: true
+  - platform: gpio
+    id: btn_minus
+    pin:
+      number: GPIO21
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    internal: true
+
 number:
   - platform: open_lcc_bianca
     coffee_boiler_temperature_offset:
@@ -132,6 +153,7 @@ number:
     auto_standby_after_brew:
       name: Auto Standby After Brew
     coffee_boiler_temperature_set_point:
+      id: coffee_set_point
       name: Coffee Set Point
     service_boiler_temperature_set_point:
       name: Service Set Point
@@ -165,3 +187,84 @@ text_sensor:
       name: Controller State
   - platform: version
     name: ESP Firmware Version
+
+spi:
+  clk_pin: GPIO12
+  mosi_pin: GPIO11
+  interface: hardware
+
+font:
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 900
+    id: font_list
+    size: 22
+    glyphsets: [GF_Latin_Core]
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 700
+    id: font_small
+    size: 14
+    glyphsets: [GF_Latin_Core]
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 900
+    id: font_value
+    size: 48
+    glyphsets: [GF_Latin_Core]
+
+open_lcc_menu:
+  id: menu
+  minus_button: btn_minus
+  plus_button: btn_plus
+  font: font_list
+  small_font: font_small
+  value_font: font_value
+  on_home_minus:
+    - number.decrement: coffee_set_point
+  on_home_plus:
+    - number.increment: coffee_set_point
+  on_home_long_minus:
+    - switch.turn_on: standby_sw
+  pages:
+    - title: Temperaturen
+      items:
+        - label: Kaffeeboiler
+          number: coffee_set_point
+          format: "%.1f °C"
+    - title: Modi
+      items:
+        - label: Eco-Modus
+          switch: eco_sw
+    - title: Info
+      items:
+        - label: RP2040
+          text: 'return std::string("v1.0.3");'
+    - title: System
+      items:
+        - label: Firmware aktualisieren
+          confirm: true
+          action:
+            - script.execute: rp2040_update
+
+display:
+  - platform: st7789v
+    id: main_display
+    model: Custom
+    width: 172
+    height: 320
+    offset_height: 0
+    offset_width: 34
+    cs_pin: GPIO10
+    dc_pin: GPIO9
+    reset_pin: GPIO8
+    rotation: 90
+    lambda: |-
+      if (id(menu).is_active()) {
+        id(menu).draw(it);
+        return;
+      }
+      it.print(10, 10, id(font_list), "Home");
